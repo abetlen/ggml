@@ -293,6 +293,7 @@ void ggml_allocr_set_parse_seq(struct ggml_allocr * alloc, int * list, int n) {
 
 void ggml_allocr_reset(struct ggml_allocr * alloc) {
     alloc->n_free_blocks = 1;
+    fprintf(stdout, "%s: alloc->alignment %zu\n", __func__, alloc->alignment); fflush(stdout);
     size_t align_offset = aligned_offset(alloc->data, 0, alloc->alignment);
     alloc->free_blocks[0].addr = (char *)alloc->data + align_offset;
     alloc->free_blocks[0].size = alloc->size - align_offset;

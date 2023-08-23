@@ -100,7 +100,7 @@ static void remove_allocated_tensor(struct ggml_allocr * alloc, struct ggml_tens
 
 
 static size_t ggml_allocator_get_alloc_size(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
-    return ggml_nbytes(tensor);
+    return ggml_nbytes_pad(tensor);
 
     UNUSED(alloc);
 }

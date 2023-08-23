@@ -106,6 +106,9 @@ static size_t ggml_allocator_get_alloc_size(struct ggml_allocr * alloc, struct g
 }
 
 void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
+    GGML_ASSERT(alloc != NULL && "alloc must not be NULL");
+    GGML_ASSERT(tensor != NULL && "tensor must not be NULL");
+
     size_t size = ggml_allocator_get_alloc_size(alloc, tensor);
     size = aligned_offset(NULL, size, alloc->alignment);
 
@@ -113,11 +116,17 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
 
     size_t max_avail = 0;
 
+    GGML_ASSERT(alloc->n_free_blocks > 0 && "n_free_blocks must be greater than 0");
+    GGML_ASSERT(alloc->free_blocks != NULL && "free_blocks must not be NULL");
+
     // find the best fitting free block besides the last block
     int best_fit_block = -1;
     size_t best_fit_size = SIZE_MAX;
     for (int i = 0; i < alloc->n_free_blocks - 1; i++) {
         struct free_block * block = &alloc->free_blocks[i];
+        GGML_ASSERT(block != NULL && "block must not be NULL");
+        GGML_ASSERT(block->size >= 0 && "block size must not be negative");
+
         max_avail = MAX(max_avail, block->size);
         if (block->size >= size && block->size <= best_fit_size) {
             best_fit_block = i;
@@ -127,23 +136,24 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
 
     AT_PRINTF("block %d\n", best_fit_block);
 
-    if (best_fit_block == -1) {
-        // the last block is our last resort
-        struct free_block * block = &alloc->free_blocks[alloc->n_free_blocks - 1];
-        if (block->size >= size) {
-            best_fit_block = alloc->n_free_blocks - 1;
-            max_avail = MAX(max_avail, block->size);
-        } else {
-            fprintf(stderr, "%s: not enough space in the buffer (needed %zu, largest block available %zu)\n",
-                    __func__, size, max_avail);
-            GGML_ASSERT(!"not enough space in the buffer");
+    // the last block is our last resort
+    struct free_block * block = (best_fit_block == -1) ? &alloc->free_blocks[alloc->n_free_blocks - 1] : &alloc->free_blocks[best_fit_block];
+    GGML_ASSERT(block != NULL && "last block must not be NULL");
+
+    if (block->size < size) {
+        fprintf(stderr, "%s: not enough space in the buffer (needed %zu, largest block available %zu)\n",
+                __func__, size, max_avail);
+        GGML_ASSERT(!"not enough space in the buffer");
         return;
-        }
     }
-    struct free_block * block = &alloc->free_blocks[best_fit_block];
+
     void * addr = block->addr;
+    GGML_ASSERT(addr != NULL && "block address must not be NULL");
+
     block->addr = (char*)block->addr + size;
     block->size -= size;
+    GGML_ASSERT(block->size >= 0 && "block size must not be negative");
+
     if (block->size == 0) {
         // remove block if empty
         alloc->n_free_blocks--;
@@ -153,6 +163,9 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
     }
 
     tensor->data = addr;
+    GGML_ASSERT(tensor->data != NULL && "tensor data address must not be NULL");
+
+
 
 #ifdef GGML_ALLOCATOR_DEBUG
     add_allocated_tensor(alloc, tensor);

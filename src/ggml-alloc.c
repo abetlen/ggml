@@ -112,6 +112,8 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
     size_t size = ggml_allocator_get_alloc_size(alloc, tensor);
     size = aligned_offset(NULL, size, alloc->alignment);
 
+    fprintf(stderr, "%s: alignment calculated\n", __func__); fflush(stderr);
+
     AT_PRINTF("%s: allocating %s (%zu bytes) - ", __func__, tensor->name, size);
 
     size_t max_avail = 0;
@@ -133,12 +135,14 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
             best_fit_size = block->size;
         }
     }
+    fprintf(stderr, "%s: best fit block found\n", __func__); fflush(stderr);
 
     AT_PRINTF("block %d\n", best_fit_block);
 
     // the last block is our last resort
     struct free_block * block = (best_fit_block == -1) ? &alloc->free_blocks[alloc->n_free_blocks - 1] : &alloc->free_blocks[best_fit_block];
     GGML_ASSERT(block != NULL && "last block must not be NULL");
+    fprintf(stderr, "%s: block set\n", __func__); fflush(stderr);
 
     if (block->size < size) {
         fprintf(stderr, "%s: not enough space in the buffer (needed %zu, largest block available %zu)\n",
@@ -149,12 +153,15 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
 
     void * addr = block->addr;
     GGML_ASSERT(addr != NULL && "block address must not be NULL");
+    fprintf(stderr, "%s: addr set\n", __func__); fflush(stderr);
 
     block->addr = (char*)block->addr + size;
     block->size -= size;
     GGML_ASSERT(block->size >= 0 && "block size must not be negative");
+    fprintf(stderr, "%s: block size set\n", __func__); fflush(stderr);
 
     if (block->size == 0) {
+        fprintf(stderr, "%s: block->size == 0\n", __func__); fflush(stderr);
         // remove block if empty
         alloc->n_free_blocks--;
         for (int j = best_fit_block; j < alloc->n_free_blocks; j++) {
@@ -164,6 +171,7 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
 
     tensor->data = addr;
     GGML_ASSERT(tensor->data != NULL && "tensor data address must not be NULL");
+    fprintf(stderr, "%s: tensor data assigned\n", __func__); fflush(stderr);
 
 
 
@@ -182,6 +190,7 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
 #endif
 
     alloc->max_size = MAX(alloc->max_size, (char*)addr - (char*)alloc->data + size);
+    fprintf(stderr, "%s: exiting\n", __func__); fflush(stderr);
 }
 
 // this is a very naive implementation, but for our case the number of free blocks should be very small

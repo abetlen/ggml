@@ -118,6 +118,8 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
     fflush(stdout);
     fprintf(stdout, "alloc struct alignment member offset: %zu\n", offsetof(struct ggml_allocr, alignment));
     fflush(stdout);
+    // alloc have correct alignment
+    GGML_ASSERT((size_t)alloc % alignof(struct ggml_allocr) == 0);
 
     GGML_ASSERT(alloc != NULL && "alloc must not be NULL");
     fprintf(stdout, "%s: alloc alignment %zu\n", __func__, alloc->alignment); fflush(stdout);

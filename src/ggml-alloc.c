@@ -106,6 +106,8 @@ static size_t ggml_allocator_get_alloc_size(struct ggml_allocr * alloc, struct g
 }
 
 void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
+    fprintf(stderr, "%s: start\n", __func__); fflush(stderr);
+
     GGML_ASSERT(alloc != NULL && "alloc must not be NULL");
     GGML_ASSERT(tensor != NULL && "tensor must not be NULL");
 

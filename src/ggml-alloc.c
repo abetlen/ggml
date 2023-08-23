@@ -112,6 +112,8 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
     GGML_ASSERT(tensor != NULL && "tensor must not be NULL");
 
     size_t size = ggml_allocator_get_alloc_size(alloc, tensor);
+    fprintf(stderr, "%s: size calculated\n", __func__); fflush(stderr);
+
     size = aligned_offset(NULL, size, alloc->alignment);
 
     fprintf(stderr, "%s: alignment calculated\n", __func__); fflush(stderr);

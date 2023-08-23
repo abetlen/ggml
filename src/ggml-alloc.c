@@ -108,6 +108,10 @@ static size_t ggml_allocator_get_alloc_size(struct ggml_allocr * alloc, struct g
     UNUSED(alloc);
 }
 
+
+#define alignof(type) offsetof (struct { char c; type member; }, member)
+
+
 void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
     fprintf(stdout, "%s: start\n", __func__); fflush(stdout);
     fprintf(stdout, "alloc alignment: %zu\n", alignof(struct ggml_allocr));

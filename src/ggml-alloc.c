@@ -122,6 +122,7 @@ void ggml_allocr_alloc(struct ggml_allocr * alloc, struct ggml_tensor * tensor) 
     GGML_ASSERT((size_t)alloc % alignof(struct ggml_allocr) == 0);
 
     GGML_ASSERT(alloc != NULL && "alloc must not be NULL");
+    fprintf(stdout, "%s: alloc address: %p\n", __func__, alloc);
     fprintf(stdout, "%s: alloc alignment %zu\n", __func__, alloc->alignment); fflush(stdout);
     GGML_ASSERT(tensor != NULL && "tensor must not be NULL");
 
@@ -348,6 +349,9 @@ struct ggml_allocr * ggml_allocr_new_measure(size_t alignment) {
     };
 
     ggml_allocr_reset(alloc);
+
+    // print address
+    fprintf(stdout, "%s: alloc address: %p\n", __func__, alloc);
 
     return alloc;
 }

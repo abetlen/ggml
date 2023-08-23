@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+struct ggml_allocr;
 
 GGML_API struct ggml_allocr * ggml_allocr_new(void * data, size_t size, size_t alignment);
 GGML_API struct ggml_allocr * ggml_allocr_new_measure(size_t alignment);

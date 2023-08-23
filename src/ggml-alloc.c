@@ -362,7 +362,7 @@ void ggml_allocr_free(struct ggml_allocr * alloc) {
 
 bool ggml_allocr_is_measure(struct ggml_allocr * alloc) {
     // print address
-    fprintf(stdout, "%s: alloc address: %p\n", __func__, alloc); flush(stdout);
+    fprintf(stdout, "%s: alloc address: %p\n", __func__, alloc); fflush(stdout);
     return alloc->measure;
 }
 

@@ -46,8 +46,10 @@ static struct hash_node * hash_get(struct hash_node hash_table[], struct ggml_te
 
 // TODO: GGML_PAD ?
 static size_t aligned_offset(const void * buffer, size_t offset, size_t alignment) {
+    fprintf(stderr, "%s: start\n", __func__); fflush(stderr);
     assert(alignment && !(alignment & (alignment - 1))); // power of 2
     size_t align = (alignment - (((uintptr_t)buffer + offset) % alignment)) % alignment;
+    fprintf(stderr, "%s: align calculated\n", __func__); fflush(stderr);
     return offset + align;
 }
 
